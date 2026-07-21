@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import { connectDb } from './lib/db';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -17,6 +18,13 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'semantic-search-engine' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+connectDb()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server running at http://localhost:${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error('Failed to connect to MongoDB:', err);
+    process.exit(1);
+  });
