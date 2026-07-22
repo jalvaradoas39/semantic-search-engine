@@ -2,6 +2,9 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import { connectDb } from './lib/db';
+// import models in server entry file to ensure models are defined before use
+import './models/SourceDocument';
+import './models/Chunk';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
