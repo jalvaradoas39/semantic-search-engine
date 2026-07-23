@@ -5,6 +5,7 @@ import { connectDb } from './lib/db';
 // import models in server entry file to ensure models are defined before use
 import './models/SourceDocument';
 import './models/Chunk';
+import ingestRouter from './routes/ingest';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -20,6 +21,8 @@ app.use(
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'semantic-search-engine' });
 });
+
+app.use('/api/ingest', ingestRouter);
 
 connectDb()
   .then(() => {
