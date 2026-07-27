@@ -1,6 +1,7 @@
 import { Chunk } from '../models/Chunk';
 import { SourceDocument, SourceType } from '../models/SourceDocument';
 import { chunkText } from '../lib/chunkText';
+import { embedTexts } from '../lib/embedTexts';
 
 export interface IngestTextInput {
   title: string;
@@ -38,20 +39,55 @@ export async function ingestText(
     sourceUri,
     status: 'processing',
   });
+  // testing output
+  console.log('[ingest] doc', {
+    id: String(doc._id),
+    title: doc.title,
+    sourceType: doc.sourceType,
+    sourceUri: doc.sourceUri,
+    status: doc.status,
+    chunkCount: doc.chunkCount,
+  });
 
   try {
     const pieces = chunkText(content);
+    // testing output
+    console.log(
+      '[ingest] pieces',
+      pieces.map((p) => ({
+        chunkIndex: p.chunkIndex,
+        length: p.content.length,
+        preview: p.content.slice(0, 80),
+      })),
+    );
 
     if (pieces.length === 0) {
       throw new Error('content produced no chunks');
     }
 
+    // one API call embeds every chunk (batch)
+    const embeddings = await embedTexts(pieces.map((piece) => piece.content));
+    // testing output
+    console.log(
+      '[ingest] embeddings',
+      embeddings.map((vec, i) => ({
+        chunkIndex: i,
+        dimensions: vec.length,
+        first3: vec.slice(0, 3),
+        last3: vec.slice(-3),
+      })),
+    );
+
+    if (embeddings.length !== pieces.length) {
+      throw new Error('embedding count did not match chunk count');
+    }
+
     await Chunk.insertMany(
-      pieces.map((piece) => ({
+      pieces.map((piece, i) => ({
         documentId: doc._id,
         content: piece.content,
         chunkIndex: piece.chunkIndex,
-        embedding: [],
+        embedding: embeddings[i],
         metadata: {},
       })),
     );
