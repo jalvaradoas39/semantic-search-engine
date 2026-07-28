@@ -4,26 +4,25 @@ import { embedTexts } from '../lib/embedTexts';
 import { cosineSimilarity } from '../lib/cosineSimilarity';
 
 export interface SearchInput {
-  query: string;
-  limit?: number;
-  /** Optional: only search chunks from one document */
-  documentId?: string;
+  query: string; // The search query
+  limit?: number; // Optional: limit the number of results
+  documentId?: string; // Optional: only search chunks from one document
 }
 
 export interface SearchHit {
-  chunkId: string;
-  documentId: string;
-  documentTitle: string;
-  chunkIndex: number;
-  content: string;
-  score: number;
+  chunkId: string; // ID of the chunk
+  documentId: string; // ID of the document
+  documentTitle: string; // Title of the document
+  chunkIndex: number; // Index of the chunk
+  content: string; // Content of the chunk
+  score: number; // Score of the chunk
 }
 
 export interface SearchResult {
-  query: string;
-  limit: number;
-  hitCount: number;
-  hits: SearchHit[];
+  query: string; // search query
+  limit: number; // limit the number of results
+  hitCount: number; // number of hits
+  hits: SearchHit[]; // list of hits
 }
 
 export async function searchChunks(input: SearchInput): Promise<SearchResult> {
