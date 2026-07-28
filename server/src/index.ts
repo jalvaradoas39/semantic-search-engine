@@ -6,6 +6,7 @@ import { connectDb } from './lib/db';
 import './models/SourceDocument';
 import './models/Chunk';
 import ingestRouter from './routes/ingest';
+import searchRouter from './routes/search';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -23,6 +24,7 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/api/ingest', ingestRouter);
+app.use('/api/search', searchRouter);
 
 connectDb()
   .then(() => {
