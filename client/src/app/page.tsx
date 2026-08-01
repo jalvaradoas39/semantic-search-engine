@@ -1,3 +1,5 @@
+import IngestForm from '@/components/IngestForm';
+
 export default function Home() {
   return (
     <div className="space-y-8">
@@ -10,6 +12,8 @@ export default function Home() {
           app returns retrieved chunks — it does not generate answers.
         </p>
       </section>
+
+      <IngestForm />
 
       <section className="rounded-xl border border-dashed border-zinc-800 p-6 text-sm text-zinc-500">
         Ingest and search UI (coming soon)
