@@ -1,4 +1,5 @@
 import IngestForm from '@/components/IngestForm';
+import SearchForm from '@/components/SearchForm';
 
 export default function Home() {
   return (
@@ -14,6 +15,8 @@ export default function Home() {
       </section>
 
       <IngestForm />
+
+      <SearchForm />
 
       <section className="rounded-xl border border-dashed border-zinc-800 p-6 text-sm text-zinc-500">
         Ingest and search UI (coming soon)
