@@ -137,7 +137,7 @@ export default function SearchForm() {
                   chunk #{hit.chunkIndex} · why it ranked: cosine similarity
                   between your query embedding and this chunk’s embedding
                 </p>
-                <pre className="mt-3 whitespace-pre-wrap break-words font-mono text-xs leading-relaxed text-zinc-300">
+                <pre className="mt-3 whitespace-pre-wrap wrap-break-word font-mono text-xs leading-relaxed text-zinc-300">
                   {hit.content}
                 </pre>
               </li>
