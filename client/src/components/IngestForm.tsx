@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import {
   ingestText,
+  ingestFile,
   type IngestSourceType,
   type IngestTextResponse,
 } from '@/lib/api';
@@ -11,6 +12,7 @@ export default function IngestForm() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [sourceType, setSourceType] = useState<IngestSourceType>('text');
+  const [file, setFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<IngestTextResponse | null>(null);
@@ -18,16 +20,26 @@ export default function IngestForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    if (!title.trim() || !content.trim()) {
-      setError('Title and content are required.');
-      return;
-    }
-
     setError('');
     setResult(null);
     setIsSubmitting(true);
 
     try {
+      // File upload — content textarea not required
+      if (file) {
+        const data = await ingestFile(file, title);
+        setResult(data);
+        setFile(null);
+        setContent('');
+        return;
+      }
+
+      // Paste path only — require title + content when no file
+      if (!title.trim() || !content.trim()) {
+        setError('Title and content are required when no file is selected.');
+        return;
+      }
+
       const data = await ingestText({
         title: title.trim(),
         content: content.trim(),
@@ -47,7 +59,8 @@ export default function IngestForm() {
       <div>
         <h2 className="text-lg font-medium text-zinc-100">Ingest document</h2>
         <p className="mt-1 text-sm text-zinc-500">
-          Paste text or markdown. The server will chunk and embed it for search.
+          Paste text/markdown, or upload a .txt / .md file. The server chunks
+          and embeds it for search.
         </p>
       </div>
 
@@ -62,7 +75,7 @@ export default function IngestForm() {
             onChange={(e) => setTitle(e.target.value)}
             disabled={isSubmitting}
             className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-zinc-500"
-            placeholder="e.g. Intro to embeddings"
+            placeholder="e.g. Intro to embeddings (optional if uploading a file)"
           />
         </div>
 
@@ -74,7 +87,7 @@ export default function IngestForm() {
             id="sourceType"
             value={sourceType}
             onChange={(e) => setSourceType(e.target.value as IngestSourceType)}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !!file}
             className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-zinc-500"
           >
             <option value="text">text</option>
@@ -82,17 +95,37 @@ export default function IngestForm() {
           </select>
         </div>
 
+        {/* file picker for .txt / .md */}
+        <div className="space-y-2">
+          <label htmlFor="file" className="block text-sm text-zinc-300">
+            Upload file (.txt or .md)
+          </label>
+          <input
+            id="file"
+            type="file"
+            accept=".txt,.md,text/plain,text/markdown"
+            disabled={isSubmitting}
+            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+            className="block w-full text-sm text-zinc-400 file:mr-3 file:rounded-lg file:border-0 file:bg-zinc-800 file:px-3 file:py-2 file:text-sm file:text-zinc-100"
+          />
+          {file && (
+            <p className="text-xs text-zinc-500">
+              Selected: {file.name} ({Math.round(file.size / 1024)} KB)
+            </p>
+          )}
+        </div>
+
         <div className="space-y-2">
           <label htmlFor="content" className="block text-sm text-zinc-300">
-            Content
+            Content (paste — ignored if a file is selected)
           </label>
           <textarea
             id="content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !!file}
             rows={10}
-            className="w-full resize-y rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 font-mono text-sm text-zinc-100 outline-none focus:border-zinc-500"
+            className="w-full resize-y rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 font-mono text-sm text-zinc-100 outline-none focus:border-zinc-500 disabled:opacity-50"
             placeholder="Paste document text here…"
           />
         </div>

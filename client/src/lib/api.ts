@@ -82,3 +82,31 @@ export async function searchChunks(
 
   return data;
 }
+
+/**
+ * Section 3: Ingest file
+ */
+export async function ingestFile(
+  file: File,
+  title?: string,
+): Promise<IngestTextResponse> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  if (title?.trim()) {
+    formData.append('title', title.trim());
+  }
+
+  const res = await fetch(`${API_BASE_URL}/api/ingest/file`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  const data = (await res.json()) as IngestTextResponse & { error?: string };
+
+  if (!res.ok) {
+    throw new Error(data.error ?? `File ingest failed (${res.status})`);
+  }
+
+  return data;
+}
