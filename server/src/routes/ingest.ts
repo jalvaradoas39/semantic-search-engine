@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import { ingestText } from '../services/ingestService';
+import { extractPdfText } from '../lib/extractPdfText';
 
 const router = Router();
 
@@ -11,7 +12,7 @@ const router = Router();
  */
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 2 * 1024 * 1024 }, // 2 MB
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
 });
 
 router.post('/', async (req: Request, res: Response) => {
@@ -76,24 +77,47 @@ router.post(
     const lower = originalName.toLowerCase();
     const isMarkdown = lower.endsWith('.md') || lower.endsWith('.markdown');
     const isText = lower.endsWith('.txt') || isMarkdown;
+    const isPdf = lower.endsWith('.pdf');
 
-    if (!isText) {
-      res
-        .status(400)
-        .json({ error: 'Only .txt and .md files are supported in this step' });
+    if (!isText && !isMarkdown && !isPdf) {
+      res.status(400).json({
+        error: 'Only .txt, .md, and .pdf files are supported',
+      });
       return;
     }
 
-    const content = file.buffer.toString('utf8').trim(); // convert the file buffer to a string. File buffer means file is in binary format.
+    let content = '';
+    let sourceType: 'text' | 'markdown' | 'pdf' = 'text';
+
+    try {
+      if (isPdf) {
+        // parse PDF binary to text
+        content = await extractPdfText(file.buffer);
+        sourceType = 'pdf';
+      } else {
+        content = file.buffer.toString('utf8').trim();
+        sourceType = isMarkdown ? 'markdown' : 'text';
+      }
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Failed to read uploaded file';
+      console.error('[POST /api/ingest/file] extract error:', message);
+      res.status(400).json({ error: message });
+      return;
+    }
 
     if (!content) {
-      res.status(400).json({ error: 'file is empty' });
+      res.status(400).json({
+        error: isPdf
+          ? 'No extractable text found in PDF (it may be image-only)'
+          : 'file is empty',
+      });
       return;
     }
 
     const titleFromBody =
       typeof req.body.title === 'string' ? req.body.title.trim() : '';
-    const title = titleFromBody || originalName.replace(/\.[^.]+$/, ''); // remove the file extension from the original name.
+    const title = titleFromBody || originalName.replace(/\.[^.]+$/, '');
 
     try {
       const result = await ingestText({

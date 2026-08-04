@@ -59,8 +59,8 @@ export default function IngestForm() {
       <div>
         <h2 className="text-lg font-medium text-zinc-100">Ingest document</h2>
         <p className="mt-1 text-sm text-zinc-500">
-          Paste text/markdown, or upload a .txt / .md file. The server chunks
-          and embeds it for search.
+          Paste text/markdown, or upload a .txt / .md / .pdf file. The server
+          chunks and embeds it for search.
         </p>
       </div>
 
@@ -98,12 +98,12 @@ export default function IngestForm() {
         {/* file picker for .txt / .md */}
         <div className="space-y-2">
           <label htmlFor="file" className="block text-sm text-zinc-300">
-            Upload file (.txt or .md)
+            Upload file (.txt, .md, or .pdf)
           </label>
           <input
             id="file"
             type="file"
-            accept=".txt,.md,text/plain,text/markdown"
+            accept=".txt,.md,.pdf,text/plain,text/markdown,application/pdf"
             disabled={isSubmitting}
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
             className="block w-full text-sm text-zinc-400 file:mr-3 file:rounded-lg file:border-0 file:bg-zinc-800 file:px-3 file:py-2 file:text-sm file:text-zinc-100"
