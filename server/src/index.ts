@@ -19,10 +19,6 @@ app.use(
   }),
 );
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'semantic-search-engine' });
-});
-
 app.use('/api/ingest', ingestRouter);
 app.use('/api/search', searchRouter);
 
