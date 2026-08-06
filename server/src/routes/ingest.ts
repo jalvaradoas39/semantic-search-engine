@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import { ingestText } from '../services/ingestService';
 import { extractPdfText } from '../lib/extractPdfText';
+import { fetchUrlText } from '../lib/fetchUrlText';
 
 const router = Router();
 
@@ -134,5 +135,36 @@ router.post(
     }
   },
 );
+
+// server fetches URL => text => ingestText
+router.post('/url', async (req: Request, res: Response) => {
+  const { url, title } = req.body;
+
+  if (!url || typeof url !== 'string' || !url.trim()) {
+    res
+      .status(400)
+      .json({ error: 'url is required and must be a non-empty string' });
+    return;
+  }
+
+  try {
+    const page = await fetchUrlText(url);
+    const resolvedTitle =
+      typeof title === 'string' && title.trim() ? title.trim() : page.titleHint;
+
+    const result = await ingestText({
+      title: resolvedTitle,
+      content: page.text,
+      sourceType: 'url',
+      sourceUri: page.url,
+    });
+
+    res.status(201).json(result);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    console.error('[POST /api/ingest/url] error:', message);
+    res.status(400).json({ error: message });
+  }
+});
 
 export default router;

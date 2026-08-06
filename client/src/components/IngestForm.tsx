@@ -4,6 +4,7 @@ import { useState } from 'react';
 import {
   ingestText,
   ingestFile,
+  ingestUrl,
   type IngestSourceType,
   type IngestTextResponse,
 } from '@/lib/api';
@@ -13,6 +14,7 @@ export default function IngestForm() {
   const [content, setContent] = useState('');
   const [sourceType, setSourceType] = useState<IngestSourceType>('text');
   const [file, setFile] = useState<File | null>(null);
+  const [url, setUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<IngestTextResponse | null>(null);
@@ -31,6 +33,14 @@ export default function IngestForm() {
         setResult(data);
         setFile(null);
         setContent('');
+        return;
+      }
+
+      // URL path when no file
+      if (url.trim()) {
+        const data = await ingestUrl({ url: url.trim(), title });
+        setResult(data);
+        setUrl('');
         return;
       }
 
@@ -53,6 +63,8 @@ export default function IngestForm() {
       setIsSubmitting(false);
     }
   }
+
+  const usingFileOrUrl = !!file || !!url.trim();
 
   return (
     <section className="space-y-4 rounded-xl border border-zinc-800 bg-zinc-900/40 p-6">
@@ -87,7 +99,7 @@ export default function IngestForm() {
             id="sourceType"
             value={sourceType}
             onChange={(e) => setSourceType(e.target.value as IngestSourceType)}
-            disabled={isSubmitting || !!file}
+            disabled={isSubmitting || usingFileOrUrl}
             className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-zinc-500"
           >
             <option value="text">text</option>
@@ -95,7 +107,7 @@ export default function IngestForm() {
           </select>
         </div>
 
-        {/* file picker for .txt / .md */}
+        {/* upload file */}
         <div className="space-y-2">
           <label htmlFor="file" className="block text-sm text-zinc-300">
             Upload file (.txt, .md, or .pdf)
@@ -115,6 +127,23 @@ export default function IngestForm() {
           )}
         </div>
 
+        {/* URL field */}
+        <div className="space-y-2">
+          <label htmlFor="url" className="block text-sm text-zinc-300">
+            URL (public http/https page)
+          </label>
+          <input
+            id="url"
+            type="url"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            disabled={isSubmitting || !!file}
+            className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-zinc-500 disabled:opacity-50"
+            placeholder="https://example.com/article"
+          />
+        </div>
+
+        {/* paste text */}
         <div className="space-y-2">
           <label htmlFor="content" className="block text-sm text-zinc-300">
             Content (paste — ignored if a file is selected)

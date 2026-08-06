@@ -6,7 +6,7 @@ import { embedTexts } from '../lib/embedTexts';
 export interface IngestTextInput {
   title: string;
   content: string;
-  sourceType?: Extract<SourceType, 'markdown' | 'text' | 'pdf'>;
+  sourceType?: Extract<SourceType, 'markdown' | 'text' | 'pdf' | 'url'>;
   sourceUri?: string;
 }
 

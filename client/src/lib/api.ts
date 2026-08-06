@@ -110,3 +110,25 @@ export async function ingestFile(
 
   return data;
 }
+
+/**
+ * Section 4: Ingest URL
+ */
+export interface IngestUrlRequest {
+  url: string;
+  title?: string;
+}
+export async function ingestUrl(
+  payload: IngestUrlRequest,
+): Promise<IngestTextResponse> {
+  const res = await fetch(`${API_BASE_URL}/api/ingest/url`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const data = (await res.json()) as IngestTextResponse & { error?: string };
+  if (!res.ok) {
+    throw new Error(data.error ?? `URL ingest failed (${res.status})`);
+  }
+  return data;
+}
