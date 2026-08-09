@@ -13,9 +13,10 @@ function scoreHint(score: number): string {
   return 'Weaker';
 }
 
+const DEFAULT_RESULT_LIMIT = 5;
+
 export default function SearchForm() {
   const [query, setQuery] = useState('');
-  const [limit, setLimit] = useState(5);
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState('');
   const [hits, setHits] = useState<SearchHit[] | null>(null);
@@ -36,7 +37,7 @@ export default function SearchForm() {
     try {
       const data = await searchChunks({
         query: query.trim(),
-        limit,
+        limit: DEFAULT_RESULT_LIMIT,
       });
       setHits(data.hits);
       setRanQuery(data.query);
@@ -73,23 +74,6 @@ export default function SearchForm() {
               className="w-full rounded-md border border-zinc-700 bg-zinc-950 px-2.5 py-1.5 text-sm text-zinc-100 outline-none focus:border-zinc-500"
               placeholder="e.g. How many planets orbit the sun?"
             />
-          </div>
-
-          <div className="w-full space-y-1 sm:w-24">
-            <label htmlFor="limit" className="block text-xs text-zinc-400">
-              Max
-            </label>
-            <select
-              id="limit"
-              value={limit}
-              onChange={(e) => setLimit(Number(e.target.value))}
-              disabled={isSearching}
-              className="w-full rounded-md border border-zinc-700 bg-zinc-950 px-2.5 py-1.5 text-sm text-zinc-100 outline-none focus:border-zinc-500"
-            >
-              <option value={3}>3</option>
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-            </select>
           </div>
 
           <button

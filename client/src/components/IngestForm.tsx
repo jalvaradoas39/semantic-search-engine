@@ -41,9 +41,7 @@ export default function IngestForm() {
       }
 
       if (!title.trim() || !content.trim()) {
-        setError(
-          'Provide a file, a URL, or both title and pasted content.',
-        );
+        setError('Provide a file, a URL, or both title and pasted content.');
         return;
       }
 
