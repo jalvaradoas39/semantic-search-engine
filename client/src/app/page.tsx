@@ -3,24 +3,21 @@ import SearchForm from '@/components/SearchForm';
 
 export default function Home() {
   return (
-    <div className="space-y-8">
-      <section>
-        <h1 className="text-2xl font-semibold tracking-tight">
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
+      <section className="shrink-0">
+        <h1 className="text-lg font-semibold tracking-tight">
           Find meaning, not just keywords
         </h1>
-        <p className="mt-2 max-w-2xl text-zinc-400">
-          Ingest text, embed chunks, and rank matches by similarity score. This
-          app returns retrieved chunks — it does not generate answers.
+        <p className="mt-0.5 text-sm text-zinc-400">
+          Ingest text, embed chunks, and rank matches by similarity — retrieval
+          only, no generated answers.
         </p>
       </section>
 
-      <IngestForm />
-
-      <SearchForm />
-
-      <section className="rounded-xl border border-dashed border-zinc-800 p-6 text-sm text-zinc-500">
-        Ingest and search UI (coming soon)
-      </section>
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-2">
+        <IngestForm />
+        <SearchForm />
+      </div>
     </div>
   );
 }

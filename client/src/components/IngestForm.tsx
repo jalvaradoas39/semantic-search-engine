@@ -41,11 +41,12 @@ export default function IngestForm() {
       }
 
       if (!title.trim() || !content.trim()) {
-        setError('Provide a file, a URL, or both title and pasted content.');
+        setError(
+          'Provide a file, a URL, or both title and pasted content.',
+        );
         return;
       }
 
-      // Paste path always stores sourceType "text" (server default)
       const data = await ingestText({
         title: title.trim(),
         content: content.trim(),
@@ -62,18 +63,20 @@ export default function IngestForm() {
   const usingFileOrUrl = !!file || !!url.trim();
 
   return (
-    <section className="space-y-4 rounded-xl border border-zinc-800 bg-zinc-900/40 p-6">
-      <div>
-        <h2 className="text-lg font-medium text-zinc-100">Ingest document</h2>
-        <p className="mt-1 text-sm text-zinc-500">
-          Paste text, upload a .txt / .md / .pdf file, or ingest a public URL.
-          The server chunks and embeds it for search.
+    <section className="flex min-h-0 flex-col rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+      <div className="shrink-0">
+        <h2 className="text-sm font-medium text-zinc-100">Ingest</h2>
+        <p className="mt-0.5 text-xs text-zinc-500">
+          Paste text, upload a file, or fetch a public URL.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <label htmlFor="title" className="block text-sm text-zinc-300">
+      <form
+        onSubmit={handleSubmit}
+        className="mt-3 flex min-h-0 flex-1 flex-col gap-2.5"
+      >
+        <div className="shrink-0 space-y-1">
+          <label htmlFor="title" className="block text-xs text-zinc-400">
             Title
           </label>
           <input
@@ -81,87 +84,89 @@ export default function IngestForm() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             disabled={isSubmitting}
-            className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-zinc-500"
-            placeholder="Optional for file/URL (uses filename or page title)"
+            className="w-full rounded-md border border-zinc-700 bg-zinc-950 px-2.5 py-1.5 text-sm text-zinc-100 outline-none focus:border-zinc-500"
+            placeholder="Optional for file/URL"
           />
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="file" className="block text-sm text-zinc-300">
-            Upload file (.txt, .md, or .pdf)
-          </label>
-          <input
-            id="file"
-            type="file"
-            accept=".txt,.md,.pdf,text/plain,text/markdown,application/pdf"
-            disabled={isSubmitting || !!url.trim()}
-            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            className="block w-full text-sm text-zinc-400 file:mr-3 file:rounded-lg file:border-0 file:bg-zinc-800 file:px-3 file:py-2 file:text-sm file:text-zinc-100"
-          />
-          {file && (
-            <p className="text-xs text-zinc-500">
-              Selected: {file.name} ({Math.round(file.size / 1024)} KB)
-            </p>
-          )}
+        {/* Separates document title from source choices */}
+        <hr className="shrink-0 border-zinc-800" />
+
+        <div className="grid shrink-0 gap-2.5 sm:grid-cols-2">
+          <div className="space-y-1">
+            <label htmlFor="file" className="block text-xs text-zinc-400">
+              Upload (.txt, .md, .pdf)
+            </label>
+            <input
+              id="file"
+              type="file"
+              accept=".txt,.md,.pdf,text/plain,text/markdown,application/pdf"
+              disabled={isSubmitting || !!url.trim()}
+              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+              className="block w-full text-xs text-zinc-400 file:mr-2 file:rounded-md file:border-0 file:bg-zinc-800 file:px-2 file:py-1.5 file:text-xs file:text-zinc-100"
+            />
+            {file && (
+              <p className="truncate text-xs text-zinc-500">
+                {file.name} ({Math.round(file.size / 1024)} KB)
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-1">
+            <label htmlFor="url" className="block text-xs text-zinc-400">
+              URL
+            </label>
+            <input
+              id="url"
+              type="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              disabled={isSubmitting || !!file}
+              className="w-full rounded-md border border-zinc-700 bg-zinc-950 px-2.5 py-1.5 text-sm text-zinc-100 outline-none focus:border-zinc-500 disabled:opacity-50"
+              placeholder="https://example.com/article"
+            />
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="url" className="block text-sm text-zinc-300">
-            URL (public http/https page)
-          </label>
-          <input
-            id="url"
-            type="url"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            disabled={isSubmitting || !!file}
-            className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-zinc-500 disabled:opacity-50"
-            placeholder="https://example.com/article"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="content" className="block text-sm text-zinc-300">
-            Content (paste text — ignored if file or URL is set)
+        <div className="flex min-h-0 flex-1 flex-col space-y-1">
+          <label htmlFor="content" className="block text-xs text-zinc-400">
+            Content (ignored if file or URL is set)
           </label>
           <textarea
             id="content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
             disabled={isSubmitting || usingFileOrUrl}
-            rows={10}
-            className="w-full resize-y rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 font-mono text-sm text-zinc-100 outline-none focus:border-zinc-500 disabled:opacity-50"
+            className="min-h-0 w-full flex-1 resize-none rounded-md border border-zinc-700 bg-zinc-950 px-2.5 py-1.5 font-mono text-xs leading-relaxed text-zinc-100 outline-none focus:border-zinc-500 disabled:opacity-50"
             placeholder="Paste document text here…"
           />
         </div>
 
-        {error && (
-          <p className="text-sm text-red-400" role="alert">
-            {error}
-          </p>
-        )}
-
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="rounded-lg bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-900 hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {isSubmitting ? 'Ingesting…' : 'Ingest'}
-        </button>
-      </form>
-
-      {result && (
-        <div className="rounded-lg border border-zinc-700 bg-zinc-950 p-4 text-sm text-zinc-300">
-          <p className="font-medium text-green-400">Ingested successfully</p>
-          <ul className="mt-2 space-y-1 font-mono text-xs text-zinc-400">
-            <li>documentId: {result.documentId}</li>
-            <li>title: {result.title}</li>
-            <li>status: {result.status}</li>
-            <li>chunkCount: {result.chunkCount}</li>
-            <li>sourceType: {result.sourceType}</li>
-          </ul>
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="rounded-md bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-900 hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isSubmitting ? 'Ingesting…' : 'Ingest'}
+          </button>
+          {error && (
+            <p className="text-xs text-red-400" role="alert">
+              {error}
+            </p>
+          )}
         </div>
-      )}
+
+        {result && (
+          <div className="shrink-0 rounded-md border border-zinc-700 bg-zinc-950 px-2.5 py-2 text-xs text-zinc-300">
+            <p className="font-medium text-green-400">Ingested</p>
+            <p className="mt-1 font-mono text-zinc-500">
+              {result.title} · {result.sourceType} · {result.chunkCount} chunk
+              {result.chunkCount === 1 ? '' : 's'} · {result.status}
+            </p>
+          </div>
+        )}
+      </form>
     </section>
   );
 }

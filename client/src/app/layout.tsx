@@ -28,17 +28,16 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-zinc-950 text-zinc-100">
-        <header className="border-b border-zinc-800 px-6 py-4">
-          <div className="mx-auto max-w-6xl">
-            <p className="text-lg font-semibold tracking-tight">
+      <body className="flex h-dvh flex-col overflow-hidden bg-zinc-950 text-zinc-100">
+        <header className="shrink-0 border-b border-zinc-800 px-4 py-2.5">
+          <div className="mx-auto flex max-w-350 items-baseline justify-between gap-4">
+            <p className="text-base font-semibold tracking-tight">
               Semantic Search Engine
             </p>
-            <p className="mt-1 text-xs text-zinc-500">Search only — no RAG</p>
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-8">
+        <main className="mx-auto flex min-h-0 w-full max-w-350 flex-1 flex-col px-4 py-3">
           {children}
         </main>
       </body>
