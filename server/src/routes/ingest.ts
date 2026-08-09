@@ -34,11 +34,11 @@ router.post('/', async (req: Request, res: Response) => {
   }
 
   try {
-    // Paste ingest is always "text"; file/URL routes set their own sourceType
     const result = await ingestText({
       title: title.trim(),
       content: content.trim(),
       sourceType: 'text',
+      ingestMethod: 'text',
       sourceUri:
         typeof sourceUri === 'string' && sourceUri.trim()
           ? sourceUri.trim()
@@ -114,7 +114,8 @@ router.post(
       const result = await ingestText({
         title,
         content,
-        sourceType: isMarkdown ? 'markdown' : 'text',
+        sourceType,
+        ingestMethod: 'file',
         sourceUri: originalName,
       });
       res.status(201).json(result);
@@ -146,6 +147,7 @@ router.post('/url', async (req: Request, res: Response) => {
       title: resolvedTitle,
       content: page.text,
       sourceType: 'url',
+      ingestMethod: 'url',
       sourceUri: page.url,
     });
 

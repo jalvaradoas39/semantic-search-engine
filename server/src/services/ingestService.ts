@@ -1,5 +1,9 @@
 import { Chunk } from '../models/Chunk';
-import { SourceDocument, SourceType } from '../models/SourceDocument';
+import {
+  SourceDocument,
+  SourceType,
+  IngestMethod,
+} from '../models/SourceDocument';
 import { chunkText } from '../lib/chunkText';
 import { embedTexts } from '../lib/embedTexts';
 
@@ -7,6 +11,8 @@ export interface IngestTextInput {
   title: string;
   content: string;
   sourceType?: Extract<SourceType, 'markdown' | 'text' | 'pdf' | 'url'>;
+  /** Which IngestForm path was used: file upload, URL, or pasted text */
+  ingestMethod?: IngestMethod;
   sourceUri?: string;
 }
 
@@ -14,6 +20,7 @@ export interface IngestTextResult {
   documentId: string;
   title: string;
   sourceType: SourceType;
+  ingestMethod: IngestMethod;
   status: string;
   chunkCount: number;
 }
@@ -24,6 +31,7 @@ export async function ingestText(
   const title = input.title.trim();
   const content = input.content.trim();
   const sourceType = input.sourceType ?? 'text';
+  const ingestMethod = input.ingestMethod ?? 'text';
   const sourceUri = (input.sourceUri ?? title).trim();
 
   if (!title) {
@@ -36,6 +44,7 @@ export async function ingestText(
   const doc = await SourceDocument.create({
     title,
     sourceType,
+    ingestMethod,
     sourceUri,
     status: 'processing',
   });
@@ -101,6 +110,7 @@ export async function ingestText(
       documentId: String(doc._id),
       title: doc.title,
       sourceType: doc.sourceType,
+      ingestMethod: doc.ingestMethod,
       status: doc.status,
       chunkCount: doc.chunkCount,
     };

@@ -45,10 +45,13 @@ export interface SearchRequest {
   documentId?: string;
 }
 
+export type IngestMethodLabel = 'File' | 'Url' | 'Text';
+
 export interface SearchHit {
   chunkId: string;
   documentId: string;
   documentTitle: string;
+  ingestMethod: IngestMethodLabel;
   chunkIndex: number;
   content: string;
   score: number;

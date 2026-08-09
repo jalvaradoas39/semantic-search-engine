@@ -112,15 +112,20 @@ export default function SearchForm() {
               </p>
 
               <ul className="space-y-2">
-                {hits.map((hit, index) => (
+                {hits.map((hit) => (
                   <li
                     key={hit.chunkId}
                     className="rounded-md border border-zinc-800 bg-zinc-950 p-2.5"
                   >
-                    <div className="flex flex-wrap items-baseline justify-between gap-2">
-                      <p className="text-xs font-medium text-zinc-200">
-                        #{index + 1} · {hit.documentTitle}
-                      </p>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex min-w-0 items-center gap-1.5">
+                        <p className="truncate text-xs font-medium text-zinc-200">
+                          {hit.documentTitle}
+                        </p>
+                        <span className="shrink-0 rounded border border-zinc-700 bg-zinc-900 px-1.5 py-0.5 text-[10px] font-medium tracking-wide text-zinc-400">
+                          {hit.ingestMethod}
+                        </span>
+                      </div>
                       <p className="font-mono text-[11px] text-zinc-400">
                         {formatScore(hit.score)}{' '}
                         <span className="text-zinc-600">

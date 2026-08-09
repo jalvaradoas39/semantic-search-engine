@@ -1,17 +1,20 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export type SourceType = 'markdown' | 'pdf' | 'url' | 'text';
+/** Which IngestForm path created this document */
+export type IngestMethod = 'file' | 'url' | 'text';
 export type SourceStatus = 'pending' | 'processing' | 'ready' | 'failed';
 
 export interface ISourceDocument extends Document {
-  title: string; // Title of the source document
-  sourceType: SourceType; // Type of the source document (markdown, pdf, url, text)
-  sourceUri: string; // URL of the source document (e.g. https://www.website.com/page.html)
-  status: SourceStatus; // Status of the source document (pending, processing, ready, failed)
-  errorMessage: string; // Error message if the source document failed to process
-  chunkCount: number; // Number of chunks in the source document
-  createdAt: Date; // Date and time the source document was created
-  updatedAt: Date; // Date and time the source document was last updated
+  title: string;
+  sourceType: SourceType;
+  ingestMethod: IngestMethod;
+  sourceUri: string;
+  status: SourceStatus;
+  errorMessage: string;
+  chunkCount: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const SourceDocumentSchema = new Schema<ISourceDocument>(
@@ -25,6 +28,12 @@ const SourceDocumentSchema = new Schema<ISourceDocument>(
       type: String,
       enum: ['markdown', 'pdf', 'url', 'text'],
       required: true,
+    },
+    ingestMethod: {
+      type: String,
+      enum: ['file', 'url', 'text'],
+      required: true,
+      default: 'text',
     },
     sourceUri: {
       type: String,
