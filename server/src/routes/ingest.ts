@@ -17,7 +17,7 @@ const upload = multer({
 });
 
 router.post('/', async (req: Request, res: Response) => {
-  const { title, content, sourceType, sourceUri } = req.body;
+  const { title, content, sourceUri } = req.body;
 
   if (!title || typeof title !== 'string' || !title.trim()) {
     res
@@ -33,22 +33,12 @@ router.post('/', async (req: Request, res: Response) => {
     return;
   }
 
-  if (
-    sourceType !== undefined &&
-    sourceType !== 'text' &&
-    sourceType !== 'markdown'
-  ) {
-    res
-      .status(400)
-      .json({ error: 'sourceType must be "text" or "markdown" for this step' });
-    return;
-  }
-
   try {
+    // Paste ingest is always "text"; file/URL routes set their own sourceType
     const result = await ingestText({
       title: title.trim(),
       content: content.trim(),
-      sourceType,
+      sourceType: 'text',
       sourceUri:
         typeof sourceUri === 'string' && sourceUri.trim()
           ? sourceUri.trim()
