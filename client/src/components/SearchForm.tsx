@@ -129,7 +129,8 @@ export default function SearchForm() {
                       </p>
                     </div>
                     <p className="mt-0.5 text-[11px] text-zinc-600">
-                      chunk #{hit.chunkIndex} · cosine similarity
+                      {/* Display 1-based; stored chunkIndex stays 0-based */}
+                      chunk #{hit.chunkIndex + 1} · cosine similarity
                     </p>
                     <pre className="mt-1.5 max-h-28 overflow-y-auto whitespace-pre-wrap wrap-break-word font-mono text-[11px] leading-relaxed text-zinc-300">
                       {hit.content}
