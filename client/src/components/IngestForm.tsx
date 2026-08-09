@@ -83,7 +83,6 @@ export default function IngestForm() {
             onChange={(e) => setTitle(e.target.value)}
             disabled={isSubmitting}
             className="w-full rounded-md border border-zinc-700 bg-zinc-950 px-2.5 py-1.5 text-sm text-zinc-100 outline-none focus:border-zinc-500"
-            placeholder="Optional for file/URL"
           />
         </div>
 
@@ -128,7 +127,7 @@ export default function IngestForm() {
 
         <div className="flex min-h-0 flex-1 flex-col space-y-1">
           <label htmlFor="content" className="block text-xs text-zinc-400">
-            Content (ignored if file or URL is set)
+            Text
           </label>
           <textarea
             id="content"
