@@ -1,12 +1,14 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ingestText,
   ingestFile,
   ingestUrl,
   type IngestTextResponse,
 } from '@/lib/api';
+
+const RESULT_VISIBLE_MS = 8000;
 
 export default function IngestForm() {
   const [title, setTitle] = useState('');
@@ -17,6 +19,17 @@ export default function IngestForm() {
   const [error, setError] = useState('');
   const [result, setResult] = useState<IngestTextResponse | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // hide the success receipt after a short delay so the form stays clear for the next ingest
+  useEffect(() => {
+    if (!result) return;
+
+    const timeoutId = window.setTimeout(() => {
+      setResult(null);
+    }, RESULT_VISIBLE_MS);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [result]);
 
   function resetFields() {
     setTitle('');
