@@ -106,9 +106,14 @@ router.post(
       return;
     }
 
-    const titleFromBody =
+    const title =
       typeof req.body.title === 'string' ? req.body.title.trim() : '';
-    const title = titleFromBody || originalName.replace(/\.[^.]+$/, '');
+    if (!title) {
+      res
+        .status(400)
+        .json({ error: 'title is required and must be a non-empty string' });
+      return;
+    }
 
     try {
       const result = await ingestText({
@@ -138,13 +143,18 @@ router.post('/url', async (req: Request, res: Response) => {
     return;
   }
 
+  if (!title || typeof title !== 'string' || !title.trim()) {
+    res
+      .status(400)
+      .json({ error: 'title is required and must be a non-empty string' });
+    return;
+  }
+
   try {
     const page = await fetchUrlText(url);
-    const resolvedTitle =
-      typeof title === 'string' && title.trim() ? title.trim() : page.titleHint;
 
     const result = await ingestText({
-      title: resolvedTitle,
+      title: title.trim(),
       content: page.text,
       sourceType: 'url',
       ingestMethod: 'url',

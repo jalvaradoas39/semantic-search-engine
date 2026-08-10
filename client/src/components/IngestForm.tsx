@@ -46,25 +46,34 @@ export default function IngestForm() {
 
     setError('');
     setResult(null);
+
+    if (!title.trim()) {
+      setError('Title is required.');
+      return;
+    }
+
+    if (!file && !url.trim() && !content.trim()) {
+      setError('Provide a file, a URL, or pasted text.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
       if (file) {
-        const data = await ingestFile(file, title);
+        const data = await ingestFile(file, title.trim());
         setResult(data);
         resetFields();
         return;
       }
 
       if (url.trim()) {
-        const data = await ingestUrl({ url: url.trim(), title });
+        const data = await ingestUrl({
+          url: url.trim(),
+          title: title.trim(),
+        });
         setResult(data);
         resetFields();
-        return;
-      }
-
-      if (!title.trim() || !content.trim()) {
-        setError('Provide a file, a URL, or both title and pasted content.');
         return;
       }
 
@@ -98,14 +107,16 @@ export default function IngestForm() {
       >
         <div className="shrink-0 space-y-1">
           <label htmlFor="title" className="block text-xs text-zinc-400">
-            Title
+            Title <span className="text-zinc-600">(required)</span>
           </label>
           <input
             id="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             disabled={isSubmitting}
+            required
             className="w-full rounded-md border border-zinc-700 bg-zinc-950 px-2.5 py-1.5 text-sm text-zinc-100 outline-none focus:border-zinc-500"
+            placeholder="Name this document"
           />
         </div>
 

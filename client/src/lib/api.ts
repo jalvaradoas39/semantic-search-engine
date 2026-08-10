@@ -88,14 +88,11 @@ export async function searchChunks(
  */
 export async function ingestFile(
   file: File,
-  title?: string,
+  title: string,
 ): Promise<IngestTextResponse> {
   const formData = new FormData();
   formData.append('file', file);
-
-  if (title?.trim()) {
-    formData.append('title', title.trim());
-  }
+  formData.append('title', title.trim());
 
   const res = await fetch(`${API_BASE_URL}/api/ingest/file`, {
     method: 'POST',
@@ -116,7 +113,7 @@ export async function ingestFile(
  */
 export interface IngestUrlRequest {
   url: string;
-  title?: string;
+  title: string;
 }
 export async function ingestUrl(
   payload: IngestUrlRequest,
