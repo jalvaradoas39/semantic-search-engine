@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   ingestText,
   ingestFile,
@@ -16,6 +16,17 @@ export default function IngestForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<IngestTextResponse | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function resetFields() {
+    setTitle('');
+    setContent('');
+    setFile(null);
+    setUrl('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -28,15 +39,14 @@ export default function IngestForm() {
       if (file) {
         const data = await ingestFile(file, title);
         setResult(data);
-        setFile(null);
-        setContent('');
+        resetFields();
         return;
       }
 
       if (url.trim()) {
         const data = await ingestUrl({ url: url.trim(), title });
         setResult(data);
-        setUrl('');
+        resetFields();
         return;
       }
 
@@ -50,7 +60,7 @@ export default function IngestForm() {
         content: content.trim(),
       });
       setResult(data);
-      setContent('');
+      resetFields();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong.');
     } finally {
@@ -96,6 +106,7 @@ export default function IngestForm() {
             </label>
             <input
               id="file"
+              ref={fileInputRef}
               type="file"
               accept=".txt,.md,.pdf,text/plain,text/markdown,application/pdf"
               disabled={isSubmitting || !!url.trim()}
