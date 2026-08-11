@@ -37,7 +37,54 @@ export async function ingestText(
 }
 
 /**
- * Section 2: Search chunks
+ * Section 2: Ingest file
+ */
+export async function ingestFile(
+  file: File,
+  title: string,
+): Promise<IngestTextResponse> {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('title', title.trim());
+
+  const res = await fetch(`${API_BASE_URL}/api/ingest/file`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  const data = (await res.json()) as IngestTextResponse & { error?: string };
+
+  if (!res.ok) {
+    throw new Error(data.error ?? `File ingest failed (${res.status})`);
+  }
+
+  return data;
+}
+
+/**
+ * Section 3: Ingest URL
+ */
+export interface IngestUrlRequest {
+  url: string;
+  title: string;
+}
+export async function ingestUrl(
+  payload: IngestUrlRequest,
+): Promise<IngestTextResponse> {
+  const res = await fetch(`${API_BASE_URL}/api/ingest/url`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const data = (await res.json()) as IngestTextResponse & { error?: string };
+  if (!res.ok) {
+    throw new Error(data.error ?? `URL ingest failed (${res.status})`);
+  }
+  return data;
+}
+
+/**
+ * Section 4: Search chunks
  */
 export interface SearchRequest {
   query: string;
@@ -80,52 +127,5 @@ export async function searchChunks(
     throw new Error(data.error ?? `Search failed (${res.status})`); // throw an error with the error message or the status code
   }
 
-  return data;
-}
-
-/**
- * Section 3: Ingest file
- */
-export async function ingestFile(
-  file: File,
-  title: string,
-): Promise<IngestTextResponse> {
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('title', title.trim());
-
-  const res = await fetch(`${API_BASE_URL}/api/ingest/file`, {
-    method: 'POST',
-    body: formData,
-  });
-
-  const data = (await res.json()) as IngestTextResponse & { error?: string };
-
-  if (!res.ok) {
-    throw new Error(data.error ?? `File ingest failed (${res.status})`);
-  }
-
-  return data;
-}
-
-/**
- * Section 4: Ingest URL
- */
-export interface IngestUrlRequest {
-  url: string;
-  title: string;
-}
-export async function ingestUrl(
-  payload: IngestUrlRequest,
-): Promise<IngestTextResponse> {
-  const res = await fetch(`${API_BASE_URL}/api/ingest/url`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-  const data = (await res.json()) as IngestTextResponse & { error?: string };
-  if (!res.ok) {
-    throw new Error(data.error ?? `URL ingest failed (${res.status})`);
-  }
   return data;
 }

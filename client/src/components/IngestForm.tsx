@@ -60,6 +60,7 @@ export default function IngestForm() {
     setIsSubmitting(true);
 
     try {
+      // handle file
       if (file) {
         const data = await ingestFile(file, title.trim());
         setResult(data);
@@ -67,6 +68,7 @@ export default function IngestForm() {
         return;
       }
 
+      // handle url
       if (url.trim()) {
         const data = await ingestUrl({
           url: url.trim(),
@@ -77,6 +79,7 @@ export default function IngestForm() {
         return;
       }
 
+      // handle text
       const data = await ingestText({
         title: title.trim(),
         content: content.trim(),

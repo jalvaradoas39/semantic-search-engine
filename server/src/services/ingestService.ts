@@ -11,8 +11,7 @@ export interface IngestTextInput {
   title: string;
   content: string;
   sourceType?: Extract<SourceType, 'markdown' | 'text' | 'pdf' | 'url'>;
-  /** Which IngestForm path was used: file upload, URL, or pasted text */
-  ingestMethod?: IngestMethod;
+  ingestMethod?: IngestMethod; // which IngestForm path was used: file upload, URL, or pasted text
   sourceUri?: string;
 }
 
@@ -48,27 +47,9 @@ export async function ingestText(
     sourceUri,
     status: 'processing',
   });
-  // testing output
-  // console.log('[ingest] doc', {
-  //   id: String(doc._id),
-  //   title: doc.title,
-  //   sourceType: doc.sourceType,
-  //   sourceUri: doc.sourceUri,
-  //   status: doc.status,
-  //   chunkCount: doc.chunkCount,
-  // });
 
   try {
     const pieces = chunkText(content);
-    // testing output
-    // console.log(
-    //   '[ingest] pieces',
-    //   pieces.map((p) => ({
-    //     chunkIndex: p.chunkIndex,
-    //     length: p.content.length,
-    //     preview: p.content.slice(0, 80),
-    //   })),
-    // );
 
     if (pieces.length === 0) {
       throw new Error('content produced no chunks');
@@ -76,16 +57,6 @@ export async function ingestText(
 
     // one API call embeds every chunk (batch)
     const embeddings = await embedTexts(pieces.map((piece) => piece.content));
-    // testing output
-    // console.log(
-    //   '[ingest] embeddings',
-    //   embeddings.map((vec, i) => ({
-    //     chunkIndex: i,
-    //     dimensions: vec.length,
-    //     first3: vec.slice(0, 3),
-    //     last3: vec.slice(-3),
-    //   })),
-    // );
 
     if (embeddings.length !== pieces.length) {
       throw new Error('embedding count did not match chunk count');

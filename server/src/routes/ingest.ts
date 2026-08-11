@@ -16,6 +16,9 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
 });
 
+/**
+ * @description Ingest text
+ */
 router.post('/', async (req: Request, res: Response) => {
   const { title, content, sourceUri } = req.body;
 
@@ -53,6 +56,9 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * @description Ingest file
+ */
 router.post(
   '/file',
   upload.single('file'), // multer middleware to handle file upload
@@ -132,7 +138,9 @@ router.post(
   },
 );
 
-// server fetches URL => text => ingestText
+/**
+ * @description Ingest URL
+ */
 router.post('/url', async (req: Request, res: Response) => {
   const { url, title } = req.body;
 
