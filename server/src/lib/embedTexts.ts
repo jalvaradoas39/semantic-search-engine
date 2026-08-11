@@ -1,7 +1,6 @@
 import { openai } from './openai';
 
 export const EMBEDDING_MODEL = 'text-embedding-3-small';
-export const EMBEDDING_DIMENSIONS = 1536;
 
 /**
  * Embed texts into a vector space. Analogy: converting words into numbers.
