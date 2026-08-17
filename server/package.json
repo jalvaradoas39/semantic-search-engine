@@ -12,10 +12,11 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@pinecone-database/pinecone": "^8.2.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "html-to-text": "^10.0.0",
+    "html-to-text": "^9.0.5",
     "mongoose": "^9.8.0",
     "multer": "^2.2.0",
     "openai": "^6.49.0",
