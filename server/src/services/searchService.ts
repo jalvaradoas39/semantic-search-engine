@@ -1,7 +1,8 @@
 import { Chunk } from '../models/Chunk';
 import { SourceDocument } from '../models/SourceDocument';
 import { embedTexts } from '../lib/embedTexts';
-import { cosineSimilarity } from '../lib/cosineSimilarity';
+// NEW (Step 3): rank in Pinecone instead of in-app cosine
+import { pineconeIndex } from '../lib/pinecone';
 
 export interface SearchInput {
   query: string; // The search query
@@ -56,18 +57,29 @@ export async function searchChunks(input: SearchInput): Promise<SearchResult> {
     throw new Error('failed to embed query');
   }
 
-  const filter: Record<string, unknown> = {
-    // skip any leftover empty embeddings from before Step 7
-    'embedding.0': { $exists: true },
-  };
+  // NEW (Step 3): ask Pinecone for top matches by vector (default namespace)
+  const pineconeFilter = input.documentId
+    ? { documentId: { $eq: input.documentId } }
+    : undefined;
 
-  if (input.documentId) {
-    filter.documentId = input.documentId;
+  const queryResponse = await pineconeIndex.query({
+    vector: queryEmbedding,
+    topK: limit,
+    includeMetadata: true,
+    ...(pineconeFilter ? { filter: pineconeFilter } : {}),
+  });
+
+  const matches = queryResponse.matches ?? [];
+  if (matches.length === 0) {
+    return { query, limit, hitCount: 0, hits: [] };
   }
 
-  const chunks = await Chunk.find(filter).select(
-    'documentId content chunkIndex embedding',
+  // NEW (Step 3): hydrate scoop text from Mongo using Pinecone ids (= chunk _ids)
+  const chunkIds = matches.map((match) => match.id);
+  const chunks = await Chunk.find({ _id: { $in: chunkIds } }).select(
+    'documentId content chunkIndex',
   );
+  const chunkById = new Map(chunks.map((chunk) => [String(chunk._id), chunk]));
 
   const docIds = [...new Set(chunks.map((chunk) => String(chunk.documentId)))];
   const docs = await SourceDocument.find({ _id: { $in: docIds } }).select(
@@ -84,27 +96,28 @@ export async function searchChunks(input: SearchInput): Promise<SearchResult> {
     ]),
   );
 
-  const scored = chunks
-    .map((chunk) => {
-      const score = cosineSimilarity(queryEmbedding, chunk.embedding);
-      const doc = docById.get(String(chunk.documentId));
-      return {
-        chunkId: String(chunk._id),
-        documentId: String(chunk.documentId),
-        documentTitle: doc?.title ?? 'Unknown',
-        ingestMethod: toIngestMethodLabel(doc?.ingestMethod, doc?.sourceType),
-        chunkIndex: chunk.chunkIndex,
-        content: chunk.content,
-        score,
-      };
-    })
-    .sort((a, b) => b.score - a.score)
-    .slice(0, limit);
+  // NEW (Step 3): keep Pinecone rank order; use its score
+  const hits: SearchHit[] = [];
+  for (const match of matches) {
+    const chunk = chunkById.get(match.id);
+    if (!chunk) continue; // orphan vector (rare) — skip
+
+    const doc = docById.get(String(chunk.documentId));
+    hits.push({
+      chunkId: String(chunk._id),
+      documentId: String(chunk.documentId),
+      documentTitle: doc?.title ?? 'Unknown',
+      ingestMethod: toIngestMethodLabel(doc?.ingestMethod, doc?.sourceType),
+      chunkIndex: chunk.chunkIndex,
+      content: chunk.content,
+      score: match.score ?? 0,
+    });
+  }
 
   return {
     query,
     limit,
-    hitCount: scored.length,
-    hits: scored,
+    hitCount: hits.length,
+    hits,
   };
 }
