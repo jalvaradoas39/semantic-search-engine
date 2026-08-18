@@ -6,6 +6,7 @@ import {
 } from '../models/SourceDocument';
 import { chunkText } from '../lib/chunkText';
 import { embedTexts } from '../lib/embedTexts';
+import { pineconeIndex } from '../lib/pinecone';
 
 export interface IngestTextInput {
   title: string;
@@ -62,7 +63,8 @@ export async function ingestText(
       throw new Error('embedding count did not match chunk count');
     }
 
-    await Chunk.insertMany(
+    // capture inserted docs so we can use Mongo _id as Pinecone record id
+    const insertedChunks = await Chunk.insertMany(
       pieces.map((piece, i) => ({
         documentId: doc._id,
         content: piece.content,
@@ -71,6 +73,18 @@ export async function ingestText(
         metadata: {},
       })),
     );
+
+    // upsert OpenAI embeddings to Pinecone (same id as Mongo chunk)
+    await pineconeIndex.upsert({
+      records: insertedChunks.map((chunk, i) => ({
+        id: String(chunk._id),
+        values: embeddings[i],
+        metadata: {
+          documentId: String(doc._id),
+          chunkIndex: chunk.chunkIndex,
+        },
+      })),
+    });
 
     doc.status = 'ready';
     doc.chunkCount = pieces.length;

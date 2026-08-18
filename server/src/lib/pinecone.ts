@@ -14,12 +14,11 @@ if (!indexHostRaw) {
   throw new Error('PINECONE_INDEX_HOST is not set in .env');
 }
 
-// Console host may be pasted with or without https://
-const indexHost = indexHostRaw.replace(/^https?:\/\//, ''); //
+const indexHost = indexHostRaw.replace(/^https?:\/\//, '');
 
 export const pinecone = new Pinecone({ apiKey });
 
-/** Target by name + host (recommended; avoids describeIndex on every call). */
+// the index we will use to store our data
 export const pineconeIndex = pinecone.index({
   name: indexName,
   host: indexHost,
