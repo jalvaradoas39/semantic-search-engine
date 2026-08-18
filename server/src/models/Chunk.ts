@@ -4,7 +4,6 @@ export interface IChunk extends Document {
   documentId: Types.ObjectId; // reference to the SourceDocument of this chunk
   content: string; // text of the chunk
   chunkIndex: number; // index of the chunk in the SourceDocument
-  embedding: number[]; // embedding is a vector of numbers that represent the semantic meaning of the chunk
   metadata: {
     // object that contains the heading and page of the chunk
     heading?: string;
@@ -30,10 +29,6 @@ const ChunkSchema = new Schema<IChunk>(
       type: Number,
       required: true,
       min: 0,
-    },
-    embedding: {
-      type: [Number],
-      default: [],
     },
     metadata: {
       heading: { type: String },

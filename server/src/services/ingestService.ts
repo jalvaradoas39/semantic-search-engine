@@ -63,13 +63,13 @@ export async function ingestText(
       throw new Error('embedding count did not match chunk count');
     }
 
-    // capture inserted docs so we can use Mongo _id as Pinecone record id
+    // NEW (Step 4): vectors live in Pinecone only; Mongo keeps scoop text
     const insertedChunks = await Chunk.insertMany(
-      pieces.map((piece, i) => ({
+      pieces.map((piece) => ({
         documentId: doc._id,
         content: piece.content,
         chunkIndex: piece.chunkIndex,
-        embedding: embeddings[i],
+        // embedding omitted → schema default []
         metadata: {},
       })),
     );
