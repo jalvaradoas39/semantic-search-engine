@@ -7,12 +7,6 @@ function formatScore(score: number): string {
   return score.toFixed(4);
 }
 
-function scoreHint(score: number): string {
-  if (score >= 0.75) return 'Strong';
-  if (score >= 0.55) return 'Moderate';
-  return 'Weaker';
-}
-
 const DEFAULT_RESULT_LIMIT = 5;
 
 export default function SearchForm() {
@@ -136,10 +130,7 @@ export default function SearchForm() {
                         </span>
                       </div>
                       <p className="font-[family-name:var(--font-mono)] text-[11px] text-[var(--ink-muted)]">
-                        {formatScore(hit.score)}{' '}
-                        <span className="text-[var(--ink-faint)]">
-                          ({scoreHint(hit.score)})
-                        </span>
+                        {formatScore(hit.score)}
                       </p>
                     </div>
 
