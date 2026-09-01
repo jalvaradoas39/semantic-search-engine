@@ -95,7 +95,7 @@ export default function IngestForm() {
     <section className="panel panel-ingest flex min-h-0 flex-col p-4 sm:p-5">
       <div className="shrink-0">
         <p className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.18em] text-[var(--signal)]">
-          01 · Intake
+          01 · Add source
         </p>
         <h2 className="mt-1 font-[family-name:var(--font-display)] text-xl font-bold tracking-tight text-[var(--ink)]">
           Ingest
@@ -114,7 +114,10 @@ export default function IngestForm() {
             htmlFor="title"
             className="block text-[11px] font-medium uppercase tracking-wide text-[var(--ink-muted)]"
           >
-            Title <span className="normal-case tracking-normal text-[var(--ink-faint)]">(required)</span>
+            Title{' '}
+            <span className="normal-case tracking-normal text-[var(--ink-faint)]">
+              (required)
+            </span>
           </label>
           <input
             id="title"

@@ -46,7 +46,7 @@ export default function RootLayout({
           <div className="mx-auto flex max-w-350 items-end justify-between gap-4">
             <div>
               <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--ink-faint)]">
-                Project 2 · Retrieval
+                Chunk · Embed · Rank
               </p>
               <h1 className="mt-1 font-[family-name:var(--font-display)] text-3xl font-extrabold leading-none tracking-tight text-[var(--ink)] sm:text-4xl">
                 Semantic Search
