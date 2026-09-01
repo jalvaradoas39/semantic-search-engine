@@ -20,7 +20,6 @@ export default function IngestForm() {
   const [result, setResult] = useState<IngestTextResponse | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // hide the success receipt after a short delay so the form stays clear for the next ingest
   useEffect(() => {
     if (!result) return;
 
@@ -60,7 +59,6 @@ export default function IngestForm() {
     setIsSubmitting(true);
 
     try {
-      // handle file
       if (file) {
         const data = await ingestFile(file, title.trim());
         setResult(data);
@@ -68,7 +66,6 @@ export default function IngestForm() {
         return;
       }
 
-      // handle url
       if (url.trim()) {
         const data = await ingestUrl({
           url: url.trim(),
@@ -79,7 +76,6 @@ export default function IngestForm() {
         return;
       }
 
-      // handle text
       const data = await ingestText({
         title: title.trim(),
         content: content.trim(),
@@ -96,21 +92,29 @@ export default function IngestForm() {
   const usingFileOrUrl = !!file || !!url.trim();
 
   return (
-    <section className="flex min-h-0 flex-col rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+    <section className="panel panel-ingest flex min-h-0 flex-col p-4 sm:p-5">
       <div className="shrink-0">
-        <h2 className="text-sm font-medium text-zinc-100">Ingest</h2>
-        <p className="mt-0.5 text-xs text-zinc-500">
+        <p className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.18em] text-[var(--signal)]">
+          01 · Intake
+        </p>
+        <h2 className="mt-1 font-[family-name:var(--font-display)] text-xl font-bold tracking-tight text-[var(--ink)]">
+          Ingest
+        </h2>
+        <p className="mt-1 text-xs text-[var(--ink-faint)]">
           Paste text, upload a file, or fetch a public URL.
         </p>
       </div>
 
       <form
         onSubmit={handleSubmit}
-        className="mt-3 flex min-h-0 flex-1 flex-col gap-2.5"
+        className="mt-4 flex min-h-0 flex-1 flex-col gap-3"
       >
-        <div className="shrink-0 space-y-1">
-          <label htmlFor="title" className="block text-xs text-zinc-400">
-            Title <span className="text-zinc-600">(required)</span>
+        <div className="shrink-0 space-y-1.5">
+          <label
+            htmlFor="title"
+            className="block text-[11px] font-medium uppercase tracking-wide text-[var(--ink-muted)]"
+          >
+            Title <span className="normal-case tracking-normal text-[var(--ink-faint)]">(required)</span>
           </label>
           <input
             id="title"
@@ -118,17 +122,22 @@ export default function IngestForm() {
             onChange={(e) => setTitle(e.target.value)}
             disabled={isSubmitting}
             required
-            className="w-full rounded-md border border-zinc-700 bg-zinc-950 px-2.5 py-1.5 text-sm text-zinc-100 outline-none focus:border-zinc-500"
+            className="field"
             placeholder="Name this document"
           />
         </div>
 
-        {/* Separates document title from source choices */}
-        <hr className="shrink-0 border-zinc-800" />
+        <div
+          className="shrink-0 border-t border-dashed border-[var(--line-strong)]"
+          aria-hidden
+        />
 
-        <div className="grid shrink-0 gap-2.5 sm:grid-cols-2">
-          <div className="space-y-1">
-            <label htmlFor="file" className="block text-xs text-zinc-400">
+        <div className="grid shrink-0 gap-3 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <label
+              htmlFor="file"
+              className="block text-[11px] font-medium uppercase tracking-wide text-[var(--ink-muted)]"
+            >
               Upload (.txt, .md, .pdf)
             </label>
             <input
@@ -138,17 +147,20 @@ export default function IngestForm() {
               accept=".txt,.md,.pdf,text/plain,text/markdown,application/pdf"
               disabled={isSubmitting || !!url.trim()}
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-              className="block w-full text-xs text-zinc-400 file:mr-2 file:rounded-md file:border-0 file:bg-zinc-800 file:px-2 file:py-1.5 file:text-xs file:text-zinc-100"
+              className="block w-full text-xs text-[var(--ink-muted)] file:mr-2 file:rounded-[var(--radius)] file:border-0 file:bg-[var(--ink)] file:px-2.5 file:py-1.5 file:text-xs file:font-medium file:text-[var(--panel-solid)]"
             />
             {file && (
-              <p className="truncate text-xs text-zinc-500">
+              <p className="truncate font-[family-name:var(--font-mono)] text-[11px] text-[var(--ink-faint)]">
                 {file.name} ({Math.round(file.size / 1024)} KB)
               </p>
             )}
           </div>
 
-          <div className="space-y-1">
-            <label htmlFor="url" className="block text-xs text-zinc-400">
+          <div className="space-y-1.5">
+            <label
+              htmlFor="url"
+              className="block text-[11px] font-medium uppercase tracking-wide text-[var(--ink-muted)]"
+            >
               URL
             </label>
             <input
@@ -157,14 +169,17 @@ export default function IngestForm() {
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               disabled={isSubmitting || !!file}
-              className="w-full rounded-md border border-zinc-700 bg-zinc-950 px-2.5 py-1.5 text-sm text-zinc-100 outline-none focus:border-zinc-500 disabled:opacity-50"
+              className="field"
               placeholder="https://example.com/article"
             />
           </div>
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col space-y-1">
-          <label htmlFor="content" className="block text-xs text-zinc-400">
+        <div className="flex min-h-0 flex-1 flex-col space-y-1.5">
+          <label
+            htmlFor="content"
+            className="block text-[11px] font-medium uppercase tracking-wide text-[var(--ink-muted)]"
+          >
             Text
           </label>
           <textarea
@@ -172,30 +187,26 @@ export default function IngestForm() {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             disabled={isSubmitting || usingFileOrUrl}
-            className="min-h-0 w-full flex-1 resize-none rounded-md border border-zinc-700 bg-zinc-950 px-2.5 py-1.5 font-mono text-xs leading-relaxed text-zinc-100 outline-none focus:border-zinc-500 disabled:opacity-50"
+            className="field min-h-0 flex-1 resize-none font-[family-name:var(--font-mono)] text-xs leading-relaxed"
             placeholder="Paste document text here…"
           />
         </div>
 
-        <div className="flex shrink-0 flex-wrap items-center gap-2">
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="rounded-md bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-900 hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
-          >
+        <div className="flex shrink-0 flex-wrap items-center gap-3">
+          <button type="submit" disabled={isSubmitting} className="btn-primary">
             {isSubmitting ? 'Ingesting…' : 'Ingest'}
           </button>
           {error && (
-            <p className="text-xs text-red-400" role="alert">
+            <p className="text-xs text-[var(--danger)]" role="alert">
               {error}
             </p>
           )}
         </div>
 
         {result && (
-          <div className="shrink-0 rounded-md border border-zinc-700 bg-zinc-950 px-2.5 py-2 text-xs text-zinc-300">
-            <p className="font-medium text-green-400">Ingested</p>
-            <p className="mt-1 font-mono text-zinc-500">
+          <div className="shrink-0 border border-[var(--line-strong)] bg-[var(--panel-solid)] px-3 py-2.5 text-xs">
+            <p className="font-semibold text-[var(--ok)]">Ingested</p>
+            <p className="mt-1 font-[family-name:var(--font-mono)] text-[var(--ink-faint)]">
               {result.title} · {result.sourceType} · {result.chunkCount} chunk
               {result.chunkCount === 1 ? '' : 's'} · {result.status}
             </p>

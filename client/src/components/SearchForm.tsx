@@ -22,7 +22,7 @@ export default function SearchForm() {
   const [hits, setHits] = useState<SearchHit[] | null>(null);
   const [ranQuery, setRanQuery] = useState('');
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
 
     if (!query.trim()) {
@@ -49,21 +49,29 @@ export default function SearchForm() {
   }
 
   return (
-    <section className="flex min-h-0 flex-col rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+    <section className="panel panel-search flex min-h-0 flex-col p-4 sm:p-5">
       <div className="shrink-0">
-        <h2 className="text-sm font-medium text-zinc-100">Search</h2>
-        <p className="mt-0.5 text-xs text-zinc-500">
+        <p className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.18em] text-[var(--ember)]">
+          02 · Retrieve
+        </p>
+        <h2 className="mt-1 font-[family-name:var(--font-display)] text-xl font-bold tracking-tight text-[var(--ink)]">
+          Search
+        </h2>
+        <p className="mt-1 text-xs text-[var(--ink-faint)]">
           Ranked chunks by similarity to the query.
         </p>
       </div>
 
       <form
         onSubmit={handleSubmit}
-        className="mt-3 flex min-h-0 flex-1 flex-col gap-2.5"
+        className="mt-4 flex min-h-0 flex-1 flex-col gap-3"
       >
         <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-end">
-          <div className="min-w-0 flex-1 space-y-1">
-            <label htmlFor="query" className="block text-xs text-zinc-400">
+          <div className="min-w-0 flex-1 space-y-1.5">
+            <label
+              htmlFor="query"
+              className="block text-[11px] font-medium uppercase tracking-wide text-[var(--ink-muted)]"
+            >
               Query
             </label>
             <input
@@ -71,36 +79,36 @@ export default function SearchForm() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               disabled={isSearching}
-              className="w-full rounded-md border border-zinc-700 bg-zinc-950 px-2.5 py-1.5 text-sm text-zinc-100 outline-none focus:border-zinc-500"
-              placeholder="e.g. How many planets orbit the sun?"
+              className="field"
+              placeholder="e.g. Why does clear communication matter at work?"
             />
           </div>
 
           <button
             type="submit"
             disabled={isSearching}
-            className="rounded-md bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-900 hover:bg-white disabled:cursor-not-allowed disabled:opacity-50 sm:shrink-0"
+            className="btn-search sm:shrink-0"
           >
             {isSearching ? '…' : 'Search'}
           </button>
         </div>
 
         {error && (
-          <p className="shrink-0 text-xs text-red-400" role="alert">
+          <p className="shrink-0 text-xs text-[var(--danger)]" role="alert">
             {error}
           </p>
         )}
 
-        <div className="min-h-0 flex-1 overflow-y-auto rounded-md border border-zinc-800 bg-zinc-950/60">
+        <div className="min-h-0 flex-1 overflow-y-auto border border-[var(--line)] bg-[rgba(255,255,255,0.45)]">
           {!hits && (
-            <p className="p-3 text-xs text-zinc-600">
+            <p className="p-4 text-xs text-[var(--ink-faint)]">
               Results appear here after you search.
             </p>
           )}
 
           {hits && (
-            <div className="space-y-2 p-2.5">
-              <p className="text-xs text-zinc-500">
+            <div className="space-y-2.5 p-3">
+              <p className="font-[family-name:var(--font-mono)] text-[11px] text-[var(--ink-faint)]">
                 {hits.length === 0 ? (
                   <>No chunks found for “{ranQuery}”.</>
                 ) : (
@@ -111,33 +119,44 @@ export default function SearchForm() {
                 )}
               </p>
 
-              <ul className="space-y-2">
-                {hits.map((hit) => (
+              <ul className="space-y-2.5">
+                {hits.map((hit, index) => (
                   <li
                     key={hit.chunkId}
-                    className="rounded-md border border-zinc-800 bg-zinc-950 p-2.5"
+                    className="hit-row"
+                    style={{ animationDelay: `${index * 0.05}s` }}
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div className="flex min-w-0 items-center gap-1.5">
-                        <p className="truncate text-xs font-medium text-zinc-200">
+                      <div className="flex min-w-0 items-center gap-2">
+                        <p className="truncate text-sm font-semibold text-[var(--ink)]">
                           {hit.documentTitle}
                         </p>
-                        <span className="shrink-0 rounded border border-zinc-700 bg-zinc-900 px-1.5 py-0.5 text-[10px] font-medium tracking-wide text-zinc-400">
+                        <span className="shrink-0 border border-[var(--line-strong)] bg-white px-1.5 py-0.5 font-[family-name:var(--font-mono)] text-[10px] font-medium uppercase tracking-wide text-[var(--ink-muted)]">
                           {hit.ingestMethod}
                         </span>
                       </div>
-                      <p className="font-mono text-[11px] text-zinc-400">
+                      <p className="font-[family-name:var(--font-mono)] text-[11px] text-[var(--ink-muted)]">
                         {formatScore(hit.score)}{' '}
-                        <span className="text-zinc-600">
+                        <span className="text-[var(--ink-faint)]">
                           ({scoreHint(hit.score)})
                         </span>
                       </p>
                     </div>
-                    <p className="mt-0.5 text-[11px] text-zinc-600">
-                      {/* Display 1-based; stored chunkIndex stays 0-based */}
+
+                    <div className="score-track mt-2">
+                      <div
+                        className="score-fill"
+                        style={{
+                          width: `${Math.min(Math.max(hit.score, 0), 1) * 100}%`,
+                          animationDelay: `${0.08 + index * 0.05}s`,
+                        }}
+                      />
+                    </div>
+
+                    <p className="mt-1.5 font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-wide text-[var(--ink-faint)]">
                       chunk #{hit.chunkIndex + 1}
                     </p>
-                    <pre className="mt-1.5 max-h-28 overflow-y-auto whitespace-pre-wrap wrap-break-word font-mono text-[11px] leading-relaxed text-zinc-300">
+                    <pre className="mt-2 max-h-28 overflow-y-auto whitespace-pre-wrap wrap-break-word bg-[var(--mono-bg)] px-2.5 py-2 font-[family-name:var(--font-mono)] text-[11px] leading-relaxed text-[var(--mono-fg)]">
                       {hit.content}
                     </pre>
                   </li>
