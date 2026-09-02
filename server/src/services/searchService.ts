@@ -1,7 +1,6 @@
 import { Chunk } from '../models/Chunk';
 import { SourceDocument } from '../models/SourceDocument';
 import { embedTexts } from '../lib/embedTexts';
-// NEW (Step 3): rank in Pinecone instead of in-app cosine
 import { pineconeIndex } from '../lib/pinecone';
 
 export interface SearchInput {
@@ -16,7 +15,6 @@ export interface SearchHit {
   chunkId: string; // ID of the chunk
   documentId: string; // ID of the document
   documentTitle: string; // Title of the document
-  /** IngestForm path label for the UI badge */
   ingestMethod: IngestMethodLabel;
   chunkIndex: number; // Index of the chunk
   content: string; // Content of the chunk
@@ -57,7 +55,7 @@ export async function searchChunks(input: SearchInput): Promise<SearchResult> {
     throw new Error('failed to embed query');
   }
 
-  // NEW (Step 3): ask Pinecone for top matches by vector (default namespace)
+  // ask Pinecone for top matches by vector (default namespace)
   const pineconeFilter = input.documentId
     ? { documentId: { $eq: input.documentId } }
     : undefined;
@@ -74,7 +72,7 @@ export async function searchChunks(input: SearchInput): Promise<SearchResult> {
     return { query, limit, hitCount: 0, hits: [] };
   }
 
-  // NEW (Step 3): hydrate scoop text from Mongo using Pinecone ids (= chunk _ids)
+  // hydrate scoop text from Mongo using Pinecone ids (equivalent to chunk _ids)
   const chunkIds = matches.map((match) => match.id);
   const chunks = await Chunk.find({ _id: { $in: chunkIds } }).select(
     'documentId content chunkIndex',
@@ -96,11 +94,11 @@ export async function searchChunks(input: SearchInput): Promise<SearchResult> {
     ]),
   );
 
-  // NEW (Step 3): keep Pinecone rank order; use its score
+  // keep Pinecone rank order; use its score
   const hits: SearchHit[] = [];
   for (const match of matches) {
     const chunk = chunkById.get(match.id);
-    if (!chunk) continue; // orphan vector (rare) — skip
+    if (!chunk) continue; // orphan vector (rare) - skip
 
     const doc = docById.get(String(chunk.documentId));
     hits.push({
