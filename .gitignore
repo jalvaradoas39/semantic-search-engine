@@ -33,6 +33,3 @@ Thumbs.db
 
 # --- TypeScript cache ---
 *.tsbuildinfo
-
-# --- Temporarily ignore ---
-README.md
