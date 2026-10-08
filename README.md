@@ -2,7 +2,7 @@
 
 > Project 2 of my Agentic AI build series — ingest documents, embed chunks, and search by **meaning**, not keywords.
 
-**Search only — no RAG.** The app returns ranked passages with scores and sources. It does **not** generate answers from those chunks (that’s Project 3).
+**Search only — no RAG.** The app returns ranked passages with scores and sources. It does **not** generate answers from those chunks
 
 ---
 
@@ -41,14 +41,14 @@ flowchart TD
 
 ## Tech stack
 
-| Layer        | Tech                                                        |
-| ------------ | ----------------------------------------------------------- |
-| Frontend     | Next.js 16, React 19, TypeScript, Tailwind CSS              |
-| Backend      | Node.js, Express 5, TypeScript                              |
-| AI           | OpenAI API (`text-embedding-3-small`)                       |
-| Database     | MongoDB Atlas, Mongoose                                     |
-| Vector store | Pinecone (dense, cosine, 1536 dims)                         |
-| Ingest       | multer, pdf-parse, html-to-text                             |
+| Layer        | Tech                                           |
+| ------------ | ---------------------------------------------- |
+| Frontend     | Next.js 16, React 19, TypeScript, Tailwind CSS |
+| Backend      | Node.js, Express 5, TypeScript                 |
+| AI           | OpenAI API (`text-embedding-3-small`)          |
+| Database     | MongoDB Atlas, Mongoose                        |
+| Vector store | Pinecone (dense, cosine, 1536 dims)            |
+| Ingest       | multer, pdf-parse, html-to-text                |
 
 ---
 
@@ -141,30 +141,22 @@ semantic-search-engine/
 
 ## Key concepts practiced
 
-| Concept                    | Where                                                                 |
-| -------------------------- | --------------------------------------------------------------------- |
-| Embeddings                 | `embedTexts.ts` — OpenAI `text-embedding-3-small`                     |
-| Chunking with overlap      | `chunkText.ts` — ~800-char windows, 100-char overlap                  |
-| Vector index tradeoffs     | In-app cosine first for learning → Pinecone for scalable ranking      |
-| Split storage              | Mongo = readable text; Pinecone = vectors; shared chunk ids           |
-| Multi-source ingest        | `routes/ingest.ts` — paste, file (multer/pdf-parse), URL              |
-| Similarity search          | `searchService.ts` — Pinecone `query` + Mongo hydrate                 |
-| Thin routes / thick services | HTTP in `routes/`; OpenAI + DB + Pinecone logic in `services/`      |
-| Product boundary           | Retrieval only — no generated answers (RAG is Project 3)              |
+| Concept                      | Where                                                            |
+| ---------------------------- | ---------------------------------------------------------------- |
+| Embeddings                   | `embedTexts.ts` — OpenAI `text-embedding-3-small`                |
+| Chunking with overlap        | `chunkText.ts` — ~800-char windows, 100-char overlap             |
+| Vector index tradeoffs       | In-app cosine first for learning → Pinecone for scalable ranking |
+| Split storage                | Mongo = readable text; Pinecone = vectors; shared chunk ids      |
+| Multi-source ingest          | `routes/ingest.ts` — paste, file (multer/pdf-parse), URL         |
+| Similarity search            | `searchService.ts` — Pinecone `query` + Mongo hydrate            |
+| Thin routes / thick services | HTTP in `routes/`; OpenAI + DB + Pinecone logic in `services/`   |
+| Product boundary             | Retrieval only portion in RAG                                    |
 
 ---
-
-## Scope boundary
-
-| In scope                        | Out of scope (later projects)        |
-| ------------------------------- | ------------------------------------ |
-| Ingest → chunk → embed → search | Grounded Q&A / citations (Project 3) |
-| Ranked chunks + scores in the UI | Tool calling, agents (Projects 4+)  |
 
 ---
 
 ## Demo
 
-YouTube: *(add link after publishing)*
-
+YouTube: https://www.youtube.com/watch?v=uDwFWHjdz4M
 GitHub: [github.com/jalvaradoas39/semantic-search-engine](https://github.com/jalvaradoas39/semantic-search-engine)
